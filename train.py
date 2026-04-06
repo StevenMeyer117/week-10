@@ -1,4 +1,5 @@
 import pandas as pd
+from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 import pickle
 import numpy as np
@@ -7,7 +8,27 @@ import numpy as np
 url = "https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/coffee_analysis.csv"
 df = pd.read_csv(url)
 
-# Function to map roast → number
+# ---------------------------
+# MODEL 1 (Linear Regression)
+# ---------------------------
+
+df1 = df[["100g_USD", "rating"]].dropna()
+
+X1 = df1[["100g_USD"]]
+y1 = df1["rating"]
+
+model1 = LinearRegression()
+model1.fit(X1, y1)
+
+with open("model_1.pickle", "wb") as f:
+    pickle.dump(model1, f)
+
+print("model_1.pickle created")
+
+# ---------------------------
+# MODEL 2 (Decision Tree)
+# ---------------------------
+
 def roast_category(roast):
     if pd.isna(roast):
         return np.nan
@@ -23,22 +44,17 @@ def roast_category(roast):
     else:
         return np.nan
 
-# Create numeric roast column
 df["roast_cat"] = df["roast"].apply(roast_category)
 
-# Keep needed columns
-df = df[["100g_USD", "roast_cat", "rating"]].dropna()
+df2 = df[["100g_USD", "roast_cat", "rating"]].dropna()
 
-# Features and target
-X = df[["100g_USD", "roast_cat"]]
-y = df["rating"]
+X2 = df2[["100g_USD", "roast_cat"]]
+y2 = df2["rating"]
 
-# Train Decision Tree
-model = DecisionTreeRegressor()
-model.fit(X, y)
+model2 = DecisionTreeRegressor()
+model2.fit(X2, y2)
 
-# Save model
 with open("model_2.pickle", "wb") as f:
-    pickle.dump(model, f)
+    pickle.dump(model2, f)
 
-print("Model trained and saved as model_2.pickle")
+print("model_2.pickle created")
